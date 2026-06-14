@@ -1,48 +1,24 @@
-exports.handler = async (event) => {
-    const token = process.env.APIFY_TOKEN;
+export async function handler(event) {
+  const { keyword } = JSON.parse(event.body);
 
-    const niche =
-        event.queryStringParameters?.query || "gym";
-
-    const location =
-        event.queryStringParameters?.location || "Kolkata";
-
-    try {
-        const input = {
-            searchStringsArray: [
-                `${niche} ${location}`
-            ],
-            maxCrawledPlacesPerSearch: 20,
-            language: "en"
-        };
-
-        const runResponse = await fetch(
-            `https://api.apify.com/v2/acts/compass~google-maps-scraper/run-sync-get-dataset-items?token=${token}`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify(input)
-            }
-        );
-
-        const data = await runResponse.json();
-
-        return {
-            statusCode: 200,
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data)
-        };
-
-    } catch (err) {
-        return {
-            statusCode: 500,
-            body: JSON.stringify({
-                error: err.message
-            })
-        };
+  const response = await fetch(
+    "https://api.apify.com/v2/acts/compass~crawler-google-places/run-sync-get-dataset-items?token=apify_api_ofXFiYLmnc2B5HR0Jaqdwo3vgb0gSf1CAFHH",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        searchStringsArray: [keyword],
+        maxCrawledPlacesPerSearch: 20,
+      }),
     }
-};
+  );
+
+  const data = await response.json();
+
+  return {
+    statusCode: 200,
+    body: JSON.stringify(data),
+  };
+}
